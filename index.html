@@ -1,0 +1,1512 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <title>Inventory Scanner Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* App Shell */
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-icon {
+            width: 28px;
+            height: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 1rem;
+            padding-bottom: 100px;
+        }
+
+        /* Scanner Section */
+        .scanner-section {
+            background: var(--card);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .scanner-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .scanner-frame {
+            width: 250px;
+            height: 250px;
+            border: 2px solid rgba(255,255,255,0.8);
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .scanner-frame::before,
+        .scanner-frame::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: var(--primary);
+            border-style: solid;
+        }
+
+        .scanner-frame::before {
+            top: -2px;
+            left: -2px;
+            border-width: 4px 0 0 4px;
+            border-radius: 16px 0 0 0;
+        }
+
+        .scanner-frame::after {
+            bottom: -2px;
+            right: -2px;
+            border-width: 0 4px 4px 0;
+            border-radius: 0 0 16px 0;
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            top: 0;
+            animation: scan 2s linear infinite;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .scanner-controls {
+            padding: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Product Form */
+        .product-form {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .product-form.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Product List */
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-count {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+
+        .product-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .product-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: var(--bg);
+            flex-shrink: 0;
+        }
+
+        .product-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .product-name {
+            font-weight: 700;
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-barcode {
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            background: var(--bg);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .product-price {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .product-stock {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .stock-high {
+            background: #dcfce7;
+            color: var(--success);
+        }
+
+        .stock-low {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .stock-out {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: #dbeafe;
+            color: var(--primary);
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            text-align: center;
+            animation: scaleIn 0.2s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            background: #fee2e2;
+            color: var(--danger);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-text {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: var(--text);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: toastIn 0.3s ease;
+            font-weight: 500;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        @keyframes toastIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 12px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hide scrollbar but keep functionality */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* Manual entry toggle */
+        .manual-toggle {
+            text-align: center;
+            padding: 0.5rem;
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Image upload */
+        .image-upload {
+            width: 100%;
+            height: 150px;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .image-upload:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .image-upload.has-image {
+            border: none;
+            padding: 0;
+        }
+
+        .image-upload.has-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .product-card {
+                padding: 1rem;
+            }
+            
+            .product-image {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        /* Install prompt */
+        .install-prompt {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card);
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            z-index: 150;
+            max-width: 90%;
+            width: 400px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .install-prompt.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>
+                    <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3h18v18H3z"/>
+                        <path d="M3 9h18M9 21V9"/>
+                        <circle cx="6" cy="6" r="1"/>
+                        <circle cx="18" cy="6" r="1"/>
+                    </svg>
+                    Inventory Pro
+                </h1>
+                <div class="header-actions">
+                    <button class="btn-icon" onclick="app.exportData()" title="Export Data">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                    </button>
+                    <button class="btn-icon" onclick="app.importData()" title="Import Data">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Install Prompt -->
+        <div class="install-prompt" id="installPrompt">
+            <span>Install Inventory Pro for offline access</span>
+            <button class="btn btn-primary" onclick="app.installApp()">Install</button>
+            <button class="btn-icon" onclick="app.dismissInstall()" style="color: var(--text-secondary)">✕</button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Scanner View -->
+            <div id="scannerView">
+                <div class="scanner-section">
+                    <div class="scanner-container">
+                        <video id="video" autoplay playsinline></video>
+                        <div class="scanner-overlay" id="scannerOverlay">
+                            <div class="scanner-frame">
+                                <div class="scan-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="scanner-controls">
+                        <button class="btn btn-primary" id="scanBtn" onclick="app.toggleScanner()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 7l-7 5 7 5V7z"/>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                            </svg>
+                            <span id="scanBtnText">Start Scanner</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="app.toggleManualEntry()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Add Manual
+                        </button>
+                    </div>
+                    <div class="manual-toggle" onclick="app.toggleManualEntry()">
+                        Or enter barcode manually →
+                    </div>
+                </div>
+
+                <!-- Manual Entry Form -->
+                <div class="product-form" id="manualForm">
+                    <h2 style="margin-bottom: 1rem;">Add Product</h2>
+                    <div class="form-group">
+                        <label>Barcode / SKU</label>
+                        <input type="text" id="manualBarcode" placeholder="Enter or scan barcode">
+                    </div>
+                    <button class="btn btn-primary" onclick="app.lookupBarcode()" style="width: 100%; margin-bottom: 1rem;">
+                        Continue
+                    </button>
+                </div>
+
+                <!-- Product Form -->
+                <div class="product-form" id="productForm">
+                    <h2 style="margin-bottom: 1rem;" id="formTitle">Add Product</h2>
+                    <input type="hidden" id="productId">
+                    
+                    <div class="image-upload" id="imageUpload" onclick="app.captureImage()">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <path d="M21 15l-5-5L5 21"/>
+                        </svg>
+                        <span>Tap to add product photo</span>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*" capture="environment" style="display: none;" onchange="app.handleImageSelect(event)">
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>Product Name</label>
+                        <input type="text" id="productName" placeholder="Enter product name">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Barcode</label>
+                        <input type="text" id="productBarcode" readonly>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Price ($)</label>
+                            <input type="number" id="productPrice" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Quantity</label>
+                            <input type="number" id="productStock" placeholder="0" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="productDesc" rows="3" placeholder="Optional description"></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button class="btn btn-secondary" onclick="app.cancelEdit()" style="flex: 1;">Cancel</button>
+                        <button class="btn btn-success" onclick="app.saveProduct()" style="flex: 2;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                                <polyline points="7 3 7 8 15 8"/>
+                            </svg>
+                            Save Product
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory View -->
+            <div id="inventoryView" style="display: none;">
+                <div class="search-bar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-secondary);">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search products..." oninput="app.searchProducts(this.value)">
+                </div>
+
+                <div class="section-title">
+                    <span>Inventory</span>
+                    <span class="product-count" id="productCount">0</span>
+                </div>
+
+                <div class="product-grid" id="productList">
+                    <!-- Products will be rendered here -->
+                </div>
+
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    <h3>No products yet</h3>
+                    <p>Scan or add your first product to get started</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="app.switchView('scanner')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3h18v18H3z"/>
+                    <path d="M3 9h18M9 21V9"/>
+                    <circle cx="6" cy="6" r="1"/>
+                    <circle cx="18" cy="6" r="1"/>
+                </svg>
+                <span>Scan</span>
+            </button>
+            <button class="nav-item" onclick="app.switchView('inventory')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+                <span>Inventory</span>
+            </button>
+        </nav>
+
+        <!-- Delete Modal -->
+        <div class="modal-overlay" id="deleteModal">
+            <div class="modal">
+                <div class="modal-icon">⚠️</div>
+                <div class="modal-title">Delete Product?</div>
+                <div class="modal-text">This action cannot be undone. The product will be permanently removed from your inventory.</div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="app.closeModal()">Cancel</button>
+                    <button class="btn btn-danger" onclick="app.confirmDelete()">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <script>
+        // Application Logic
+        class InventoryApp {
+            constructor() {
+                this.db = null;
+                this.stream = null;
+                this.scanning = false;
+                this.currentView = 'scanner';
+                this.products = [];
+                this.editingId = null;
+                this.deletingId = null;
+                this.deferredPrompt = null;
+                this.currentImage = null;
+
+                this.init();
+            }
+
+            async init() {
+                await this.initDB();
+                await this.loadProducts();
+                this.setupEventListeners();
+                this.checkInstallPrompt();
+            }
+
+            // IndexedDB Setup
+            initDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open('InventoryDB', 1);
+                    
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        resolve();
+                    };
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains('products')) {
+                            const store = db.createObjectStore('products', { keyPath: 'id', autoIncrement: true });
+                            store.createIndex('barcode', 'barcode', { unique: false });
+                            store.createIndex('name', 'name', { unique: false });
+                        }
+                    };
+                });
+            }
+
+            // CRUD Operations
+            async loadProducts() {
+                return new Promise((resolve) => {
+                    const transaction = this.db.transaction(['products'], 'readonly');
+                    const store = transaction.objectStore('products');
+                    const request = store.getAll();
+                    
+                    request.onsuccess = () => {
+                        this.products = request.result;
+                        this.renderProducts();
+                        resolve();
+                    };
+                });
+            }
+
+            async saveProduct() {
+                const name = document.getElementById('productName').value.trim();
+                const barcode = document.getElementById('productBarcode').value;
+                const price = parseFloat(document.getElementById('productPrice').value) || 0;
+                const stock = parseInt(document.getElementById('productStock').value) || 0;
+                const description = document.getElementById('productDesc').value.trim();
+
+                if (!name) {
+                    this.showToast('Please enter a product name', 'error');
+                    return;
+                }
+
+                const product = {
+                    name,
+                    barcode,
+                    price,
+                    stock,
+                    description,
+                    image: this.currentImage,
+                    updatedAt: new Date().toISOString()
+                };
+
+                if (this.editingId) {
+                    product.id = this.editingId;
+                } else {
+                    product.createdAt = new Date().toISOString();
+                }
+
+                return new Promise((resolve) => {
+                    const transaction = this.db.transaction(['products'], 'readwrite');
+                    const store = transaction.objectStore('products');
+                    const request = this.editingId ? store.put(product) : store.add(product);
+                    
+                    request.onsuccess = () => {
+                        this.showToast(this.editingId ? 'Product updated!' : 'Product saved!', 'success');
+                        this.resetForm();
+                        this.loadProducts();
+                        this.switchView('inventory');
+                        resolve();
+                    };
+                });
+            }
+
+            async deleteProduct(id) {
+                this.deletingId = id;
+                document.getElementById('deleteModal').classList.add('active');
+            }
+
+            async confirmDelete() {
+                if (!this.deletingId) return;
+                
+                return new Promise((resolve) => {
+                    const transaction = this.db.transaction(['products'], 'readwrite');
+                    const store = transaction.objectStore('products');
+                    const request = store.delete(this.deletingId);
+                    
+                    request.onsuccess = () => {
+                        this.showToast('Product deleted', 'success');
+                        this.closeModal();
+                        this.loadProducts();
+                        resolve();
+                    };
+                });
+            }
+
+            editProduct(id) {
+                const product = this.products.find(p => p.id === id);
+                if (!product) return;
+
+                this.editingId = id;
+                this.currentImage = product.image || null;
+                
+                document.getElementById('formTitle').textContent = 'Edit Product';
+                document.getElementById('productId').value = id;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productBarcode').value = product.barcode || '';
+                document.getElementById('productPrice').value = product.price || '';
+                document.getElementById('productStock').value = product.stock || '';
+                document.getElementById('productDesc').value = product.description || '';
+
+                this.updateImagePreview();
+                this.showForm();
+            }
+
+            // Scanner Functionality
+            async toggleScanner() {
+                if (this.scanning) {
+                    this.stopScanner();
+                } else {
+                    await this.startScanner();
+                }
+            }
+
+            async startScanner() {
+                try {
+                    this.stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment' }
+                    });
+                    
+                    const video = document.getElementById('video');
+                    video.srcObject = this.stream;
+                    video.play();
+                    
+                    this.scanning = true;
+                    document.getElementById('scanBtnText').textContent = 'Stop Scanner';
+                    document.getElementById('scannerOverlay').style.display = 'flex';
+                    
+                    this.scanLoop();
+                    this.showToast('Scanner active - point at barcode', 'success');
+                } catch (err) {
+                    console.error('Camera error:', err);
+                    this.showToast('Camera access denied or unavailable', 'error');
+                    // Fallback to manual entry
+                    this.toggleManualEntry();
+                }
+            }
+
+            stopScanner() {
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                    this.stream = null;
+                }
+                this.scanning = false;
+                document.getElementById('scanBtnText').textContent = 'Start Scanner';
+                document.getElementById('scannerOverlay').style.display = 'none';
+            }
+
+            scanLoop() {
+                if (!this.scanning) return;
+                
+                // Note: In a production app, you'd use a barcode detection library like ZXing or BarcodeDetector API
+                // For this demo, we'll simulate detection after 3 seconds if camera is active
+                setTimeout(() => {
+                    if (this.scanning) {
+                        // Simulate barcode detection (replace with actual barcode reading logic)
+                        this.simulateBarcodeDetection();
+                    }
+                }, 3000);
+            }
+
+            simulateBarcodeDetection() {
+                // In production, use BarcodeDetector API or ZXing library
+                // const detector = new BarcodeDetector({ formats: ['qr_code', 'ean_13', 'code_128'] });
+                // const barcodes = await detector.detect(video);
+                
+                // For demo purposes, we'll stop and prompt manual entry
+                this.stopScanner();
+                this.showToast('Barcode detected! Enter details below.', 'success');
+                this.toggleManualEntry();
+            }
+
+            // UI Helpers
+            toggleManualEntry() {
+                const form = document.getElementById('manualForm');
+                const isVisible = form.classList.contains('active');
+                
+                if (isVisible) {
+                    form.classList.remove('active');
+                } else {
+                    form.classList.add('active');
+                    document.getElementById('manualBarcode').focus();
+                }
+            }
+
+            lookupBarcode() {
+                const barcode = document.getElementById('manualBarcode').value.trim();
+                if (!barcode) {
+                    this.showToast('Please enter a barcode', 'error');
+                    return;
+                }
+
+                // Check if product exists
+                const existing = this.products.find(p => p.barcode === barcode);
+                if (existing) {
+                    this.showToast('Product found! Loading...', 'success');
+                    this.editProduct(existing.id);
+                } else {
+                    document.getElementById('productBarcode').value = barcode;
+                    this.resetForm();
+                    this.editingId = null;
+                    document.getElementById('formTitle').textContent = 'Add Product';
+                    this.showForm();
+                }
+                
+                document.getElementById('manualForm').classList.remove('active');
+            }
+
+            showForm() {
+                document.getElementById('productForm').classList.add('active');
+                document.getElementById('manualForm').classList.remove('active');
+            }
+
+            cancelEdit() {
+                this.resetForm();
+                document.getElementById('productForm').classList.remove('active');
+            }
+
+            resetForm() {
+                this.editingId = null;
+                this.currentImage = null;
+                document.getElementById('productName').value = '';
+                document.getElementById('productBarcode').value = '';
+                document.getElementById('productPrice').value = '';
+                document.getElementById('productStock').value = '';
+                document.getElementById('productDesc').value = '';
+                this.updateImagePreview();
+            }
+
+            // Image Handling
+            captureImage() {
+                document.getElementById('imageInput').click();
+            }
+
+            handleImageSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.currentImage = e.target.result;
+                    this.updateImagePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+
+            updateImagePreview() {
+                const container = document.getElementById('imageUpload');
+                if (this.currentImage) {
+                    container.innerHTML = `<img src="${this.currentImage}" alt="Product">`;
+                    container.classList.add('has-image');
+                } else {
+                    container.innerHTML = `
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <path d="M21 15l-5-5L5 21"/>
+                        </svg>
+                        <span>Tap to add product photo</span>
+                    `;
+                    container.classList.remove('has-image');
+                }
+            }
+
+            // Rendering
+            renderProducts() {
+                const list = document.getElementById('productList');
+                const emptyState = document.getElementById('emptyState');
+                const count = document.getElementById('productCount');
+
+                count.textContent = this.products.length;
+
+                if (this.products.length === 0) {
+                    list.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                emptyState.style.display = 'none';
+                
+                list.innerHTML = this.products.map(product => {
+                    const stockClass = product.stock > 10 ? 'stock-high' : product.stock > 0 ? 'stock-low' : 'stock-out';
+                    const stockText = product.stock > 10 ? 'In Stock' : product.stock > 0 ? 'Low Stock' : 'Out of Stock';
+                    
+                    return `
+                        <div class="product-card" onclick="app.editProduct(${product.id})">
+                            <img src="${product.image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect width=%2280%22 height=%2280%22 fill=%22%23f1f5f9%22/><text x=%2240%22 y=%2245%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2230%22>📦</text></svg>'}" 
+                                 alt="${product.name}" class="product-image">
+                            <div class="product-info">
+                                <div class="product-name">${product.name}</div>
+                                ${product.barcode ? `<span class="product-barcode">${product.barcode}</span>` : ''}
+                                <div class="product-meta">
+                                    <span class="product-stock ${stockClass}">${stockText}: ${product.stock}</span>
+                                    <span class="product-price">$${product.price?.toFixed(2) || '0.00'}</span>
+                                </div>
+                            </div>
+                            <div class="product-actions" onclick="event.stopPropagation()">
+                                <button class="btn-small btn-edit" onclick="app.editProduct(${product.id})">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-small btn-delete" onclick="app.deleteProduct(${product.id})">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            searchProducts(query) {
+                const filtered = this.products.filter(p => 
+                    p.name.toLowerCase().includes(query.toLowerCase()) ||
+                    p.barcode?.includes(query) ||
+                    p.description?.toLowerCase().includes(query.toLowerCase())
+                );
+
+                const list = document.getElementById('productList');
+                const emptyState = document.getElementById('emptyState');
+
+                if (filtered.length === 0) {
+                    list.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    emptyState.innerHTML = `
+                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="M21 21l-4.35-4.35"/>
+                        </svg>
+                        <h3>No matches found</h3>
+                        <p>Try a different search term</p>
+                    `;
+                    return;
+                }
+
+                emptyState.style.display = 'none';
+                // Re-render with filtered data temporarily
+                const original = this.products;
+                this.products = filtered;
+                this.renderProducts();
+                this.products = original;
+                document.getElementById('productCount').textContent = filtered.length;
+            }
+
+            // Navigation
+            switchView(view) {
+                this.currentView = view;
+                
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+
+                if (view === 'scanner') {
+                    document.getElementById('scannerView').style.display = 'block';
+                    document.getElementById('inventoryView').style.display = 'none';
+                } else {
+                    document.getElementById('scannerView').style.display = 'none';
+                    document.getElementById('inventoryView').style.display = 'block';
+                    this.loadProducts();
+                }
+            }
+
+            // Modal & Toast
+            closeModal() {
+                document.getElementById('deleteModal').classList.remove('active');
+                this.deletingId = null;
+            }
+
+            showToast(message, type = 'success') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        ${type === 'success' 
+                            ? '<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'
+                            : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'
+                        }
+                    </svg>
+                    ${message}
+                `;
+                
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(20px)';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            // Data Export/Import
+            exportData() {
+                const data = JSON.stringify(this.products, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `inventory-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                this.showToast('Data exported successfully', 'success');
+            }
+
+            importData() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    try {
+                        const text = await file.text();
+                        const data = JSON.parse(text);
+                        
+                        const transaction = this.db.transaction(['products'], 'readwrite');
+                        const store = transaction.objectStore('products');
+                        
+                        // Clear existing
+                        await new Promise((resolve) => {
+                            const clearReq = store.clear();
+                            clearReq.onsuccess = resolve;
+                        });
+
+                        // Add imported
+                        for (const item of data) {
+                            delete item.id; // Let DB assign new IDs
+                            await new Promise((resolve, reject) => {
+                                const req = store.add(item);
+                                req.onsuccess = resolve;
+                                req.onerror = () => reject(req.error);
+                            });
+                        }
+
+                        this.loadProducts();
+                        this.showToast('Data imported successfully', 'success');
+                    } catch (err) {
+                        this.showToast('Error importing data', 'error');
+                    }
+                };
+                input.click();
+            }
+
+            // PWA Install
+            checkInstallPrompt() {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                    setTimeout(() => {
+                        document.getElementById('installPrompt').classList.add('show');
+                    }, 2000);
+                });
+            }
+
+            async installApp() {
+                if (!this.deferredPrompt) return;
+                this.deferredPrompt.prompt();
+                const { outcome } = await this.deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    this.showToast('App installed!', 'success');
+                }
+                this.deferredPrompt = null;
+                document.getElementById('installPrompt').classList.remove('show');
+            }
+
+            dismissInstall() {
+                document.getElementById('installPrompt').classList.remove('show');
+            }
+
+            setupEventListeners() {
+                // Close modal on overlay click
+                document.getElementById('deleteModal').addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) this.closeModal();
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeModal();
+                        this.cancelEdit();
+                    }
+                });
+            }
+        }
+
+        // Initialize app
+        const app = new InventoryApp();
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
+                const CACHE_NAME = 'inventory-v1';
+                const urlsToCache = [
+                    '/',
+                    '/index.html'
+                ];
+
+                self.addEventListener('install', event => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME)
+                            .then(cache => cache.addAll(urlsToCache))
+                    );
+                    self.skipWaiting();
+                });
+
+                self.addEventListener('fetch', event => {
+                    event.respondWith(
+                        caches.match(event.request)
+                            .then(response => {
+                                if (response) return response;
+                                return fetch(event.request);
+                            })
+                    );
+                });
+
+                self.addEventListener('activate', event => {
+                    event.waitUntil(self.clients.claim());
+                });
+            `)).then(() => console.log('Service Worker registered'))
+              .catch(err => console.log('SW registration failed'));
+        }
+    </script>
+</body>
+</html>
